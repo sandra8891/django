@@ -1,19 +1,31 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
 </head>
-<body>
+<body class="body">
   
      <form action="{% url 'index' %}" method="post">
         {% csrf_token %}
-        <input type="text" name="todo1">
-        <input type="submit" value="submit">
+    <div class="box">
+    <div class="box1">
+        <h1 class="head">TODO LIST</h1>
+        <input class="todo" type="text" name="todo1">
+        <input class = "button" type="submit" value="submit">
+        <div class="box2">
+             {% for i in feeds %}
+             <p>{{i.title}}</p>
+             {% endfor %}
+             
+         </div>
+     </div>
+    </div>
      </form>
-     {% for i in feeds %}
-     <p>{{i.title}}</p>
-     {% endfor %}
+    
 </body>
 </html>
