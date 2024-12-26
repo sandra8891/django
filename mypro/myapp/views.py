@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+# from django.shortcuts import render,redirect
 # Create your views here.
 # def index(request):
 #     if request.POST:
@@ -20,3 +20,8 @@ def index(request):
         return redirect(index)
     data=Todoitem.objects.all()
     return render(request,"index.html",{"feeds":data})
+def delete_g(request,id):
+    print(id)
+    feeds=Todoitem.objects.filter(pk=id)
+    feeds.delete()
+    return redirect(index)

@@ -9,23 +9,29 @@
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
 </head>
 <body class="body">
-  
-     <form action="{% url 'index' %}" method="post">
-        {% csrf_token %}
     <div class="box">
     <div class="box1">
+     <form action="{% url 'index' %}" method="post">
+        {% csrf_token %}
+    <div>
         <h1 class="head">TODO LIST</h1>
         <input class="todo" type="text" name="todo1">
         <input class = "button" type="submit" value="submit">
-        <div class="box2">
-             {% for i in feeds %}
-             <p>{{i.title}}</p>
-             {% endfor %}
-             
-         </div>
-     </div>
+        
     </div>
-     </form>
+</form>
+<div class="box2">
+    {% for i in feeds %}
+    <div>
+        <span>{{i.title}}</span>
+        <a href="{% url 'deletion' i.id %}"><button>Delete</button></a>
+    </div>
+    {% endfor %}
+<div>
+</div>
+</div>
+</div>
+
     
 </body>
 </html>

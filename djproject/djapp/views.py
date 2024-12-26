@@ -10,3 +10,4 @@ def index(request):
         return redirect('index')
     gallery_images=Gallery.objects.all()
     return render(request,"index.html",{"gallery_images":gallery_images})
+
