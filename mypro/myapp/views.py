@@ -25,3 +25,11 @@ def delete_g(request,id):
     feeds=Todoitem.objects.filter(pk=id)
     feeds.delete()
     return redirect(index)
+def edit_g(request,pk):
+    if request.method=="POST":
+        title1=request.POST.get('todo')
+        Todoitem.objects.filter(pk=pk).update(title=title1)
+        return redirect('index')
+    else:
+        data=Todoitem.objects.get(pk=pk)
+        return render(request,'index.html',{'data1':data})
