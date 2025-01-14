@@ -1,0 +1,35 @@
+def verifyotp(request):
+    otp_expiry_time = 5  # Time in minutes for OTP expiry (5 minutes in this case)
+    
+    if request.POST:
+        otp = request.POST.get('otp')
+        otp1 = request.session.get('otp')
+        otp_timestamp = request.session.get('otp_timestamp')
+        
+        # Check if OTP is expired
+        if otp_timestamp:
+            expiration_time = otp_timestamp + timedelta(minutes=otp_expiry_time)
+            if datetime.now() > expiration_time:
+                messages.error(request, 'OTP has expired. Please request a new one.')
+                del request.session['otp']  # Clear expired OTP from the session
+                del request.session['otp_timestamp']
+                return redirect('getusername')  # Redirect to get username again
+
+        if otp == otp1:
+            del request.session['otp']
+            del request.session['otp_timestamp']
+            return redirect('passwordreset')
+        else:
+            messages.error(request, 'Invalid OTP. Please try again.')
+
+    # Generate OTP and set expiry timestamp
+    otp = ''.join(random.choices('123456789', k=6))
+    request.session['otp'] = otp
+    request.session['otp_timestamp'] = datetime.now()  # Save the current time when OTP is generated
+
+    message = f'Your email verification code is: {otp}'
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [request.session.get('email')]
+    send_mail('Email Verification', message, email_from, recipient_list)
+
+    return render(request, "otp.html")
