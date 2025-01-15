@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login,logout
 from django.core.mail import send_mail
 from django.conf import settings
 import random
+from datetime import datetime, timedelta
 
 def index(request):
     return render(request, 'index.html')
@@ -52,12 +53,48 @@ def userlogin(request):
 
     return render(request, 'userlogin.html')
 
+# def verifyotp(request):
+#     if request.POST:
+#         otp = request.POST.get('otp')
+#         otp1 = request.session.get('otp')
+#         if otp == otp1:
+#             del request.session['otp']
+#             return redirect('passwordreset')
+#         else:
+#             messages.error(request, 'Invalid OTP. Please try again.')
+
+#     # Generate OTP and send email
+#     otp = ''.join(random.choices('123456789', k=6))
+#     request.session['otp'] = otp
+#     message = f'Your email verification code is: {otp}'
+#     email_from = settings.EMAIL_HOST_USER
+#     recipient_list = [request.session.get('email')]
+#     send_mail('Email Verification', message, email_from, recipient_list)
+
+#     return render(request, "otp.html")
+
+
+
+
 def verifyotp(request):
     if request.POST:
         otp = request.POST.get('otp')
         otp1 = request.session.get('otp')
+        otp_time_str = request.session.get('otp_time')  # This is now a string, not a datetime object
+
+        # Check if OTP is expired
+        if otp_time_str:
+            otp_time = datetime.fromisoformat(otp_time_str)  # Convert the string back to a datetime object
+            otp_expiry_time = otp_time + timedelta(minutes=5)  # OTP expires after 5 minutes
+            if datetime.now() > otp_expiry_time:
+                messages.error(request, 'OTP has expired. Please request a new one.')
+                del request.session['otp']
+                del request.session['otp_time']
+                return redirect('verifyotp')  # Redirect to request a new OTP
+
         if otp == otp1:
             del request.session['otp']
+            del request.session['otp_time']
             return redirect('passwordreset')
         else:
             messages.error(request, 'Invalid OTP. Please try again.')
@@ -65,12 +102,17 @@ def verifyotp(request):
     # Generate OTP and send email
     otp = ''.join(random.choices('123456789', k=6))
     request.session['otp'] = otp
+    request.session['otp_time'] = datetime.now().isoformat()  # Store the current time as an ISO string
     message = f'Your email verification code is: {otp}'
     email_from = settings.EMAIL_HOST_USER
     recipient_list = [request.session.get('email')]
     send_mail('Email Verification', message, email_from, recipient_list)
 
     return render(request, "otp.html")
+
+
+
+
 
 def getusername(request):
     if request.POST:
@@ -122,3 +164,7 @@ def logoutuser(request):
     logout(request)
     request.session.flush()
     return redirect(userlogin)
+
+
+
+
